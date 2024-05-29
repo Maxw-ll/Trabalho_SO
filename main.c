@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DISK_FILE "D.png"
-#define MAXQTD_FILES 2
-#define TAMMAX_LINECOMAND 606
+#define TRUE 1
+
+#define DISK_NAME "D.png"
+#define MAXQTD_FILES 100
+
 #define DISK_SIZE 1048576 // 1 MB
 
 #define TMAX_NAME 100
@@ -23,7 +25,7 @@ Arquivo Diretorio[MAXQTD_FILES]; //Vetor de Arquivos, com cada Arquivo do Disco
 int file_count = 0; //Contador para a Quantidade de Arquivos
 
 void init_disk() {
-    FILE *disk = fopen(DISK_FILE, "wb");
+    FILE *disk = fopen(DISK_NAME, "wb");
     if (!disk) {
         perror("Erro ao tentar Criar o Disco!");
         exit(1);
@@ -37,7 +39,7 @@ void init_disk() {
 }
 
 void load_Diretorio() {
-    FILE *disk = fopen(DISK_FILE, "rb");
+    FILE *disk = fopen(DISK_NAME, "rb");
     if (!disk) {
         perror("Erro ao Abrir o Disco!");
         exit(1); //Finaliza o Programa indicando que houve um Erro
@@ -48,7 +50,7 @@ void load_Diretorio() {
 }
 
 void save_Diretorio() {
-    FILE *disk = fopen(DISK_FILE, "r+b");
+    FILE *disk = fopen(DISK_NAME, "r+b");
     if (!disk) {
         perror("Erro ao Abrir o Disco!");
         exit(1); //Finaliza o Programa indicando que houve um Erro
@@ -78,7 +80,7 @@ void create_file(const char *name, const char *content) {
     Diretorio[file_count].size = content_len;
     file_count++;
 
-    FILE *disk = fopen(DISK_FILE, "r+b");
+    FILE *disk = fopen(DISK_NAME, "r+b");
     fseek(disk, start, SEEK_SET);
     fwrite(content, sizeof(char), content_len, disk);
     fclose(disk);
@@ -97,7 +99,7 @@ void show_file_content(const char *name) {
     for (int i = 0; i < file_count; i++) {
         if (strcmp(Diretorio[i].name, name) == 0) {
             char *content = (char *)malloc(Diretorio[i].size + 1);
-            FILE *disk = fopen(DISK_FILE, "rb");
+            FILE *disk = fopen(DISK_NAME, "rb");
             fseek(disk, Diretorio[i].start, SEEK_SET);
             fread(content, sizeof(char), Diretorio[i].size, disk);
             content[Diretorio[i].size] = '\0';
@@ -112,7 +114,17 @@ void show_file_content(const char *name) {
 }
 
 void tratar_comando(char* comando, char* arquivo, char* conteudo){
-    printf("%s %s %s", comando, arquivo, conteudo);
+
+    
+    if (strcmp(comando, "cat") == 0) {
+        create_file(arquivo, conteudo);
+    } else if (strcmp(comando, "ls") == 0) {
+        list_files();
+    } else if (strcmp(comando, "more") == 0) {
+        show_file_content(arquivo);
+    } else {
+        fprintf(stderr, "Unknown command or incorrect arguments\n");
+    }
 }
 
 char* mini_terminal(char* comando, char* arquivo, char* conteudo){
@@ -124,26 +136,24 @@ char* mini_terminal(char* comando, char* arquivo, char* conteudo){
 
 
 int main(int argc, char *argv[]) {
-    // if (argc < 2) {
-    //     fprintf(stderr, "Usage: %s <command> [args...]\n", argv[0]);
-    //     return 1;
-    // }
+  
+    //Inicializar o disco se ele não existir
 
-    // // Inicializar o disco se ele não existir
-    // FILE *disk_check = fopen(DISK_FILE, "rb");
-    // if (!disk_check) {
-    //     init_disk();
-    // } else {
-    //     fclose(disk_check);
-    // }
+    FILE *disk_check = fopen(DISK_NAME, "rb");
+    if (!disk_check) {
+        init_disk();
+    } else {
+        fclose(disk_check);
+    }
 
-    // load_Diretorio();
+    load_Diretorio();
 
-    // const char *command = argv[1];
-    #define TRUE 1
+
+
     char* comando  = (char*)malloc(sizeof(char)*TMAX_COMAND);
     char* arquivo  = (char*)malloc(sizeof(char)*TMAX_NAME);
     char* conteudo = (char*)malloc(sizeof(char)*TMAX_CONTENT);
+
     while (TRUE){
        
         char* ok = mini_terminal(comando, arquivo, conteudo);
@@ -153,21 +163,11 @@ int main(int argc, char *argv[]) {
     }
 
 
-    //MUDAR PARA SWITCH
+  
     
 
 
 
-
-    // if (strcmp(command, "cat") == 0 && argc == 4) {
-    //     create_file(argv[2], argv[3]);
-    // } else if (strcmp(command, "ls") == 0) {
-    //     list_files();
-    // } else if (strcmp(command, "more") == 0 && argc == 3) {
-    //     show_file_content(argv[2]);
-    // } else {
-    //     fprintf(stderr, "Unknown command or incorrect arguments\n");
-    // }
 
     return 0;
 }
