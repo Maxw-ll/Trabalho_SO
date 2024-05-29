@@ -111,50 +111,17 @@ void show_file_content(const char *name) {
     fprintf(stderr, "File not found\n");
 }
 
+void tratar_comando(char* comando, char* arquivo, char* conteudo){
+    printf("%s %s %s", comando, arquivo, conteudo);
+}
 
-char* mini_terminal(){
+char* mini_terminal(char* comando, char* arquivo, char* conteudo){
     printf("M:\\Max\\");
-    char* linha_de_comando = (char*)(malloc(sizeof(char)*TAMMAX_LINECOMAND));
-    fgets(linha_de_comando, TAMMAX_LINECOMAND, stdin);
-    return linha_de_comando;
+    scanf("%s %s ", comando, arquivo);
+    fgets(conteudo, TMAX_CONTENT, stdin);
+    tratar_comando(comando, arquivo, conteudo);
 }
 
-void split_entrada(char* line_comand, char* comando, char* arquivo, char* conteudo){
-    int len = strlen(line_comand);
-    
-    int spaces = 0;
-    int idx =0;
-    for( int i=0; i<len-1; i++){
-        if(line_comand[i] == ' '){
-            switch(spaces){
-                case 0: comando[idx] = '\0'; break;
-                case 1: arquivo[idx] = '\0'; break;
-                case 2: conteudo[idx] = '\0'; break;
-            }
-            spaces += 1;
-            idx = 0;
-        }
-        else{
-            switch(spaces){
-                case 0:
-                {
-                    comando[idx] = line_comand[i];
-                } break;
-                case 1:
-                {
-                    arquivo[idx] = line_comand[i];
-                } break;
-                case 2:
-                {   
-                    conteudo[idx] = line_comand[i];
-                } break;
-            } 
-        }
-        idx += 1;
-        printf("%d", idx);
-
-    }
-}
 
 int main(int argc, char *argv[]) {
     // if (argc < 2) {
@@ -179,11 +146,9 @@ int main(int argc, char *argv[]) {
     char* conteudo = (char*)malloc(sizeof(char)*TMAX_CONTENT);
     while (TRUE){
        
-        char* ok = mini_terminal();
+        char* ok = mini_terminal(comando, arquivo, conteudo);
 
-        printf("%s / %s  / %s", comando, arquivo, conteudo);
-        split_entrada(ok, comando, arquivo, conteudo);
-        printf("%s / %s  / %s", comando, arquivo, conteudo);
+       
 
     }
 
