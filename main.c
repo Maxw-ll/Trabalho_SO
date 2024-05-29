@@ -5,11 +5,15 @@
 
 #define DISK_FILE "D.png"
 #define MAXQTD_FILES 2
-#define TAMMAX_NAME 100
+#define TAMMAX_LINECOMAND 606
 #define DISK_SIZE 1048576 // 1 MB
 
+#define TMAX_NAME 100
+#define TMAX_COMAND 4
+#define TMAX_CONTENT 500
+
 typedef struct {
-    char name[TAMMAX_NAME]; //Nome do Arquivo
+    char name[TMAX_NAME]; //Nome do Arquivo
     int  start;  //Byte onde o Arquivo começa 
     int  size;   //Total de Bytes do Arquivo
 } Arquivo;
@@ -110,13 +114,48 @@ void show_file_content(const char *name) {
 
 char* mini_terminal(){
     printf("M:\\Max\\");
-    char* comando, arquivo, conteudo;
-    comando = (char*)malloc(sizeof(char)*4);
-    arquivo = (char*)malloc(sizeof(char)*TAMMAX_NAME);
-    comando = (char*)malloc(sizeof(char)*4);
-    scanf("%s", comando);
-    return comando;
+    char* linha_de_comando = (char*)(malloc(sizeof(char)*TAMMAX_LINECOMAND));
+    fgets(linha_de_comando, TAMMAX_LINECOMAND, stdin);
+    return linha_de_comando;
 }
+
+void split_entrada(char* line_comand, char* comando, char* arquivo, char* conteudo){
+    int len = strlen(line_comand);
+    
+    int spaces = 0;
+    int idx =0;
+    for( int i=0; i<len-1; i++){
+        if(line_comand[i] == ' '){
+            switch(spaces){
+                case 0: comando[idx] = '\0'; break;
+                case 1: arquivo[idx] = '\0'; break;
+                case 2: conteudo[idx] = '\0'; break;
+            }
+            spaces += 1;
+            idx = 0;
+        }
+        else{
+            switch(spaces){
+                case 0:
+                {
+                    comando[idx] = line_comand[i];
+                } break;
+                case 1:
+                {
+                    arquivo[idx] = line_comand[i];
+                } break;
+                case 2:
+                {   
+                    conteudo[idx] = line_comand[i];
+                } break;
+            } 
+        }
+        idx += 1;
+        printf("%d", idx);
+
+    }
+}
+
 int main(int argc, char *argv[]) {
     // if (argc < 2) {
     //     fprintf(stderr, "Usage: %s <command> [args...]\n", argv[0]);
@@ -134,10 +173,19 @@ int main(int argc, char *argv[]) {
     // load_Diretorio();
 
     // const char *command = argv[1];
+    #define TRUE 1
+    char* comando  = (char*)malloc(sizeof(char)*TMAX_COMAND);
+    char* arquivo  = (char*)malloc(sizeof(char)*TMAX_NAME);
+    char* conteudo = (char*)malloc(sizeof(char)*TMAX_CONTENT);
+    while (TRUE){
+       
+        char* ok = mini_terminal();
 
-    char* ok = mini_terminal();
+        printf("%s / %s  / %s", comando, arquivo, conteudo);
+        split_entrada(ok, comando, arquivo, conteudo);
+        printf("%s / %s  / %s", comando, arquivo, conteudo);
 
-    printf("%s", ok);
+    }
 
 
     //MUDAR PARA SWITCH
