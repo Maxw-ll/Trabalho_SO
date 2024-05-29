@@ -88,6 +88,7 @@ void list_files() {
     }
 }
 
+
 void show_file_content(const char *name) {
     for (int i = 0; i < file_count; i++) {
         if (strcmp(Diretorio[i].name, name) == 0) {
@@ -106,35 +107,54 @@ void show_file_content(const char *name) {
     fprintf(stderr, "File not found\n");
 }
 
+
+char* mini_terminal(){
+    printf("M:\\Max\\");
+    char* comando, arquivo, conteudo;
+    comando = (char*)malloc(sizeof(char)*4);
+    arquivo = (char*)malloc(sizeof(char)*TAMMAX_NAME);
+    comando = (char*)malloc(sizeof(char)*4);
+    scanf("%s", comando);
+    return comando;
+}
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <command> [args...]\n", argv[0]);
-        return 1;
-    }
+    // if (argc < 2) {
+    //     fprintf(stderr, "Usage: %s <command> [args...]\n", argv[0]);
+    //     return 1;
+    // }
 
-    // Inicializar o disco se ele não existir
-    FILE *disk_check = fopen(DISK_FILE, "rb");
-    if (!disk_check) {
-        init_disk();
-    } else {
-        fclose(disk_check);
-    }
+    // // Inicializar o disco se ele não existir
+    // FILE *disk_check = fopen(DISK_FILE, "rb");
+    // if (!disk_check) {
+    //     init_disk();
+    // } else {
+    //     fclose(disk_check);
+    // }
 
-    load_Diretorio();
+    // load_Diretorio();
 
-    const char *command = argv[1];
+    // const char *command = argv[1];
+
+    char* ok = mini_terminal();
+
+    printf("%s", ok);
 
 
     //MUDAR PARA SWITCH
-    if (strcmp(command, "cat") == 0 && argc == 4) {
-        create_file(argv[2], argv[3]);
-    } else if (strcmp(command, "ls") == 0) {
-        list_files();
-    } else if (strcmp(command, "more") == 0 && argc == 3) {
-        show_file_content(argv[2]);
-    } else {
-        fprintf(stderr, "Unknown command or incorrect arguments\n");
-    }
+    
+
+
+
+
+    // if (strcmp(command, "cat") == 0 && argc == 4) {
+    //     create_file(argv[2], argv[3]);
+    // } else if (strcmp(command, "ls") == 0) {
+    //     list_files();
+    // } else if (strcmp(command, "more") == 0 && argc == 3) {
+    //     show_file_content(argv[2]);
+    // } else {
+    //     fprintf(stderr, "Unknown command or incorrect arguments\n");
+    // }
 
     return 0;
 }
