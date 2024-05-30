@@ -190,6 +190,7 @@ int mini_terminal(char* comando, char* arquivo, char* conteudo){
         //Aqui o fgets pega todo o restante digitado para Apaga-lo depois, impedindo que o comando pegar cada entrada separada. 
         //Caso contrario tinhamos um bug de imprimir essa mensagem varias vezes, a quantidade de quantas entradas separadas por espaço tivermos
         fgets(conteudo, TMAX_CONTENT, stdin);
+        return TRUE;
     }
     
     if (get_next_entry == TRUE){
