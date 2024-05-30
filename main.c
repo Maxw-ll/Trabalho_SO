@@ -235,7 +235,7 @@ int main(int argc, char *argv[]) {
         run = mini_terminal(comando, arquivo, conteudo);
     }
 
-    printf("Obrigado por usar meu Programa de Gerenciamento de Arquivos em Disco!");
+    printf("Obrigado por usar meu Programa de Gerenciamento de Arquivos em Disco!\n");
     return 0;
 }
 
