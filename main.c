@@ -180,7 +180,7 @@ int mini_terminal(char* comando, char* arquivo, char* conteudo){
     } else if (strcmp(comando, "exit") == 0){
         return FALSE;
     } else if (strcmp(comando, "clear") == 0){
-        system("cls");
+        system("clear");
     } else if (strcmp(comando, "cat") == 0) {
         get_next_entry = TRUE;
     } else if (strcmp(comando, "more") == 0) {
