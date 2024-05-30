@@ -4,18 +4,21 @@
 #include <string.h>
 
 #define TRUE 1
+#define FALSE 0
 
-#define DISK_NAME "D.png"
-#define MAXQTD_FILES 100
+//Máxima quantidade de Arquivos e Nome do Disco. Quantidade de Arquivos Alta
+#define DISK_NAME "M.iso"
+#define MAXQTD_FILES 1000
 
-#define DISK_SIZE 1048576 // 1 MB
+//Tamanho Máximo do Disco
+#define TMAX_DISCO 1048576 // 1 MB
 
 #define TMAX_NAME 100
 #define TMAX_COMAND 4
 #define TMAX_CONTENT 500
 
 typedef struct {
-    char name[TMAX_NAME]; //Nome do Arquivo
+    char name [TMAX_NAME]; //Nome do Arquivo
     int  start;  //Byte onde o Arquivo começa 
     int  size;   //Total de Bytes do Arquivo
 } Arquivo;
@@ -32,7 +35,7 @@ void init_disk() {
     }
     // Preenche o disco com zeros, equivalente a iniciar ele sem nenhum arquivo
     char zero = 0;
-    for (int i = 0; i < DISK_SIZE; i++) {
+    for (int i = 0; i < TMAX_DISCO; i++) {
         fwrite(&zero, sizeof(zero), 1, disk);
     }
     fclose(disk);
@@ -60,18 +63,30 @@ void save_Diretorio() {
     fclose(disk);
 }
 
+int verifica_existencia(char *name){
+    for(int i=0; i<file_count; i++){
+        if(strcmp(Diretorio[i].name, name) == 0){
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
 
-void create_file(const char *name, const char *content) {
+void create_file(char *name, char *content) {
+    if (verifica_existencia(name) == TRUE){
+        printf("Nome de Arquivo ja Existe! Insira um Nome Diferente!\n");
+        return;
+    } 
     if (file_count >= MAXQTD_FILES) {
-        fprintf(stderr, "O Disco está Cheio! Máxima Quantidade de Arquivos Atingida\n");
+        printf("O Disco está Cheio! Máxima Quantidade de Arquivos Atingida: %d\n", MAXQTD_FILES);
         return;
     }
 
     int content_len = strlen(content);
     int start = (file_count == 0) ? sizeof(int) + MAXQTD_FILES * sizeof(Arquivo) : Diretorio[file_count - 1].start + Diretorio[file_count - 1].size;
 
-    if (start + content_len > DISK_SIZE) {
-        fprintf(stderr, "O Disco está Cheio! Sem Espaço Suficiente\n");
+    if (start + content_len > TMAX_DISCO) {
+        printf("O Disco está Cheio! Sem Espaço Suficiente!\n");
         return;
     }
 
@@ -95,43 +110,69 @@ void list_files() {
 }
 
 
-void show_file_content(const char *name) {
+void mostrar_arquivo(char *name) {
     for (int i = 0; i < file_count; i++) {
         if (strcmp(Diretorio[i].name, name) == 0) {
+            //Iniciamos um conteúdo com tamanho do diretorio mais um, para acrecentarmos um \0 ao final
             char *content = (char *)malloc(Diretorio[i].size + 1);
+            //Abrimos o Disco como Leitura
             FILE *disk = fopen(DISK_NAME, "rb");
             fseek(disk, Diretorio[i].start, SEEK_SET);
             fread(content, sizeof(char), Diretorio[i].size, disk);
             content[Diretorio[i].size] = '\0';
             fclose(disk);
 
-            printf("%s\n", content);
+            printf("%s", content);
             free(content);
             return;
         }
     }
-    fprintf(stderr, "File not found\n");
+    printf("Arquivo nao Encontrado!\n");
 }
 
+//Definir a função do Comando quando temos mais de duas entradas no terminal
 void tratar_comando(char* comando, char* arquivo, char* conteudo){
 
-    
     if (strcmp(comando, "cat") == 0) {
         create_file(arquivo, conteudo);
-    } else if (strcmp(comando, "ls") == 0) {
-        list_files();
     } else if (strcmp(comando, "more") == 0) {
-        show_file_content(arquivo);
+        mostrar_arquivo(arquivo);
     } else {
-        fprintf(stderr, "Unknown command or incorrect arguments\n");
+        printf("Comando Desconhecido!: Digite /help para visualizar os comandos disponiveis\n");
     }
 }
 
-char* mini_terminal(char* comando, char* arquivo, char* conteudo){
+//Imprimir os Comandos Disponíveis
+void imprimir_help(){
+    printf("Comandos disponiveis:\n");
+    printf("[Criar Arquivo]   : cat  <nome> <conteudo>\n");
+    printf("[Ler Arquivo]     : more <nome>\n");
+    printf("[Listar Arquivos] : ls\n");
+    printf("[Limpar Terminal] : clear\n");
+    printf("[Encerrar]        : exit\n");
+}
+
+// Impressão para Simular um Terminal identificando o comando digitado e realizando sua função
+int mini_terminal(char* comando, char* arquivo, char* conteudo){
     printf("M:\\Max\\");
-    scanf("%s %s ", comando, arquivo);
-    fgets(conteudo, TMAX_CONTENT, stdin);
-    tratar_comando(comando, arquivo, conteudo);
+    scanf("%s", comando);
+    if (strcmp(comando, "ls") == 0){
+        list_files();
+    } else if (strcmp(comando, "/help") == 0){
+        imprimir_help();
+    } else if (strcmp(comando, "exit") == 0){
+        return FALSE;
+    } else if (strcmp(comando, "clear") == 0){
+        system("cls");
+    } else if (strlen(arquivo) == 0){
+        printf("Comando Desconhecido!: Digite /help para visualizar os comandos disponiveis\n");
+    }
+    else{
+        scanf("%s", arquivo);
+        fgets(conteudo, TMAX_CONTENT, stdin);
+        tratar_comando(comando, arquivo, conteudo);
+    }
+    return TRUE; 
 }
 
 
@@ -146,29 +187,21 @@ int main(int argc, char *argv[]) {
         fclose(disk_check);
     }
 
+    //Carregando Sempre o Diretorio ao iniciar
     load_Diretorio();
 
-
-
+    //Variáveis para armazenar as entradas da linha de comando
     char* comando  = (char*)malloc(sizeof(char)*TMAX_COMAND);
     char* arquivo  = (char*)malloc(sizeof(char)*TMAX_NAME);
     char* conteudo = (char*)malloc(sizeof(char)*TMAX_CONTENT);
-
-    while (TRUE){
-       
-        char* ok = mini_terminal(comando, arquivo, conteudo);
-
-       
-
+    
+    //Variável de Controle para Encerrar o Programa
+    int run = TRUE;
+    while (run){
+        run = mini_terminal(comando, arquivo, conteudo);
     }
 
-
-  
-    
-
-
-
-
+    printf("Obrigado por usar meu Programa de Gerenciamento de Arquvos em Disco :)");
     return 0;
 }
 
